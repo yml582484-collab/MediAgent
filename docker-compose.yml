@@ -1,0 +1,53 @@
+services:
+  mediagent:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: mediagent-service
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    environment:
+      - PYTHONUNBUFFERED=1
+      - PYTHONDONTWRITEBYTECODE=1
+      - PYTHONPATH=/app
+    volumes:
+      # ChromaDB persistent storage
+      - chromadb_data:/app/data/chromadb
+      # Application logs
+      - ./logs:/app/logs
+      # Workspace for file operations
+      - workspace_data:/app/workspace
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/health"]
+      interval: 30s
+      timeout: 10s
+      start_period: 40s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: "2.0"
+          memory: 4G
+        reservations:
+          cpus: "0.5"
+          memory: 512M
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "5"
+    networks:
+      - mediagent-network
+
+volumes:
+  chromadb_data:
+    driver: local
+  workspace_data:
+    driver: local
+
+networks:
+  mediagent-network:
+    driver: bridge

@@ -1,0 +1,138 @@
+# MediAgent 智慧医疗助手 Configuration
+# 卫宁健康风格智慧医疗AI助手
+
+# LLM Configuration
+llm:
+  provider: "deepseek"
+  model: "deepseek-chat"
+  api_base: "https://api.deepseek.com/v1"
+  temperature: 0.7
+  max_tokens: 4096
+  stream: true
+  # Retry configuration
+  retry:
+    max_retries: 3
+    retry_delay: 1.0
+
+# Memory Configuration
+memory:
+  short_term:
+    window_size: 10  # Number of recent messages to keep
+    max_tokens: 8000  # Max tokens in context
+
+  long_term:
+    vector_db: "chromadb"
+    persist_directory: "./data/chromadb"
+    collection_name: "agent_memories"
+    embedding_model: "all-MiniLM-L6-v2"
+    similarity_threshold: 0.7
+    max_results: 5
+
+# Tool Configuration
+tools:
+  enabled:
+    - web_search
+    - calculator
+    - code_executor
+    - file_manager
+    - medical_knowledge
+    - drug_query
+    - drug_api  # 新增：外部药品API抓取工具
+    - symptom_analyzer
+
+  web_search:
+    engine: "duckduckgo"  # or google, bing
+    max_results: 5
+
+  code_executor:
+    timeout: 30  # seconds
+    allowed_languages: ["python", "javascript"]
+
+  file_manager:
+    base_path: "./workspace"
+    allowed_extensions: [".txt", ".md", ".py", ".json", ".csv"]
+
+  # 医疗知识库查询工具配置
+  medical_knowledge:
+    knowledge_base_path: "./data/medical_knowledge"
+    categories:
+      - "疾病百科"
+      - "检验检查"
+      - "临床指南"
+      - "医保政策"
+    search_limit: 5
+    similarity_threshold: 0.6
+
+  # 药品查询工具配置（内置数据库 + 三层Fallback）
+  drug_query:
+    data_source: "./data/drug_database"
+    search_fields:
+      - "drug_name"
+      - "generic_name"
+      - "indications"
+      - "manufacturer"
+    max_results: 10
+    enable_fallback: true  # 启用外部API和网络搜索fallback
+
+  # 外部药品API抓取工具配置
+  drug_api:
+    timeout: 15  # seconds
+    sources:
+      - "dxy"  # 丁香园用药助手
+      - "baike"  # 百度百科
+    fallback_order: ["dxy", "baike"]
+
+  # 症状分析工具配置
+  symptom_analyzer:
+    max_symptoms: 10
+    confidence_threshold: 0.6
+    emergency_keywords:
+      - "胸痛"
+      - "呼吸困难"
+      - "大出血"
+      - "意识丧失"
+      - "剧烈头痛"
+      - "严重过敏"
+
+# Agent Configuration
+agent:
+  name: "MediAgent 智慧医疗助手"
+  language: "zh-CN"  # 默认语言：简体中文
+  max_iterations: 8  # Max ReAct loops
+  thinking_verbose: true  # Show reasoning steps
+  safe_mode: true  # Enable safety checks
+  compliance_mode: true  # 医疗合规模式
+  medical_disclaimer: true  # 医疗免责声明
+
+# API Server Configuration (FastAPI)
+server:
+  host: "0.0.0.0"
+  port: 8000
+  debug: false
+  cors_origins: ["*"]
+
+# Logging Configuration
+logging:
+  level: "INFO"  # DEBUG, INFO, WARNING, ERROR
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  file: "./logs/agent.log"
+  max_file_size: 10485760  # 10MB
+  backup_count: 5
+
+# Security Configuration
+security:
+  # API Key authentication (leave empty to disable)
+  auth_api_keys: []
+  # Rate limiting
+  rate_limit_per_minute: 30
+  rate_limit_burst: 10
+  # CORS allowed origins
+  allowed_origins: ["*"]
+
+# Observability Configuration
+observability:
+  # Prometheus metrics
+  enable_metrics: true
+  # Audit logging
+  enable_audit_log: true
+  audit_log_max_entries: 10000

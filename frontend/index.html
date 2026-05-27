@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediAgent 智慧医疗助手</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- 侧边栏 -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <div class="logo-icon">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" fill="currentColor" opacity="0.2"/>
+                            <path d="M12 4v16M4 12h16" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+                            <path d="M7 7l2 2M17 7l-2 2M7 17l2-2M17 17l-2-2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity="0.5"/>
+                        </svg>
+                    </div>
+                    <span class="logo-text">MediAgent</span>
+                </div>
+                <button class="new-chat-btn" id="newChatBtn">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 5v14M5 12h14"/>
+                    </svg>
+                    新对话
+                </button>
+            </div>
+
+            <div class="history-section">
+                <div class="section-title">最近对话</div>
+                <div class="chat-history" id="chatHistory">
+                    <!-- 对话历史会动态添加 -->
+                </div>
+            </div>
+
+            <div class="usage-section">
+                <div class="section-title">服务状态</div>
+                <div class="balance-card" id="balanceCard">
+                    <div class="balance-main">
+                        <div class="balance-label">总余额</div>
+                        <div class="balance-amount" id="totalBalance">¥ 0.00</div>
+                        <div class="balance-status" id="balanceStatus">
+                            <span class="status-dot"></span>
+                            <span>加载中...</span>
+                        </div>
+                    </div>
+                    <div class="balance-details">
+                        <div class="detail-item">
+                            <div class="detail-label">充值余额</div>
+                            <div class="detail-value" id="toppedUpBalance">¥ 0.00</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">赠金余额</div>
+                            <div class="detail-value" id="grantedBalance">¥ 0.00</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section-title" style="margin-top: 16px;">本地统计</div>
+                <div class="usage-stats" id="usageStats">
+                    <div class="usage-item">
+                        <div class="usage-label">Token 总量</div>
+                        <div class="usage-value" id="usageTokens">0</div>
+                    </div>
+                    <div class="usage-item">
+                        <div class="usage-label">API 调用</div>
+                        <div class="usage-value" id="usageCalls">0</div>
+                    </div>
+                    <div class="usage-item">
+                        <div class="usage-label">最后更新</div>
+                        <div class="usage-value" id="lastUpdated">--:--</div>
+                    </div>
+                </div>
+                <button class="refresh-usage-btn" id="refreshUsageBtn" title="刷新余额">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21.5 2v6h-6"/>
+                        <path d="M2.5 22v-6h6"/>
+                        <path d="M3.5 8a8.5 8.5 0 0 1 14-6"/>
+                        <path d="M20.5 16a8.5 8.5 0 0 1-14 6"/>
+                    </svg>
+                    刷新余额
+                </button>
+            </div>
+
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <div class="user-avatar">U</div>
+                    <div class="user-details">
+                        <div class="user-name">用户</div>
+                        <div class="user-status">在线</div>
+                    </div>
+                </div>
+                <div class="settings-btn" title="设置">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="3"/>
+                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- 透明触摸区域 - 用于展开/收起侧边栏 -->
+            <div class="sidebar-touch-zone" id="sidebarTouchZone"></div>
+        </aside>
+
+        <!-- 主内容区 -->
+        <main class="main-content" id="mainContent">
+            <!-- 顶部栏 -->
+            <header class="top-bar">
+                <!-- 展开按钮（侧边栏收起时显示） -->
+                <button class="expand-sidebar-btn" id="expandSidebarBtn" title="展开侧边栏">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                        <line x1="9" y1="3" x2="9" y2="21"/>
+                    </svg>
+                </button>
+
+                <button class="menu-toggle" id="menuToggle" title="菜单">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M3 12h18M3 6h18M3 18h18"/>
+                    </svg>
+                </button>
+                <div class="chat-title">
+                    <span id="chatTitle">新对话</span>
+                </div>
+                <div class="top-bar-actions">
+                    <!-- Agent 模式选择器 -->
+                    <div class="agent-mode-selector" id="agentModeSelector">
+                        <button class="agent-mode-btn active" data-mode="react" title="ReAct 模式：逐步推理">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"/>
+                                <path d="M12 6v6l4 2"/>
+                            </svg>
+                            <span>ReAct</span>
+                        </button>
+                        <button class="agent-mode-btn" data-mode="direct" title="直接模式：快速回答">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+                            </svg>
+                            <span>Direct</span>
+                        </button>
+                        <button class="agent-mode-btn" data-mode="plan_and_execute" title="计划执行模式：先规划后执行">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M4 6h16M4 12h10M4 18h14"/>
+                            </svg>
+                            <span>Plan</span>
+                        </button>
+                    </div>
+
+                    <!-- 流式开关 -->
+                    <label class="streaming-toggle" id="streamingToggle" title="启用流式输出">
+                        <input type="checkbox" id="streamingCheckbox" checked>
+                        <span class="streaming-slider">
+                            <span class="streaming-icon">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                                    <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/>
+                                    <circle cx="12" cy="12" r="3"/>
+                                </svg>
+                            </span>
+                        </span>
+                        <span class="streaming-label">流式</span>
+                    </label>
+
+                    <button class="model-selector" id="modelSelector">
+                        <span class="model-name">MediAgent</span>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M6 9l6 6 6-6"/>
+                        </svg>
+                    </button>
+                </div>
+            </header>
+
+            <!-- 思维过程面板 -->
+            <div class="thinking-panel" id="thinkingPanel">
+                <div class="thinking-panel-header" id="thinkingPanelHeader">
+                    <div class="thinking-panel-title">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"/>
+                            <path d="M12 16v-4M12 8h.01"/>
+                        </svg>
+                        <span>推理过程</span>
+                        <span class="thinking-step-count" id="thinkingStepCount"></span>
+                    </div>
+                    <div class="thinking-panel-actions">
+                        <button class="thinking-panel-btn" id="thinkingPanelToggle" title="收起面板">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M6 9l6 6 6-6"/>
+                            </svg>
+                        </button>
+                        <button class="thinking-panel-btn" id="thinkingPanelClose" title="关闭面板">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M18 6L6 18M6 6l12 12"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div class="thinking-panel-body" id="thinkingPanelBody">
+                    <div class="thinking-steps" id="thinkingSteps">
+                        <!-- 实时推理步骤会动态添加 -->
+                    </div>
+                    <div class="thinking-panel-empty" id="thinkingPanelEmpty">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.3">
+                            <circle cx="12" cy="12" r="10"/>
+                            <path d="M12 16v-4M12 8h.01"/>
+                        </svg>
+                        <span>等待推理开始...</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 对话区域 -->
+            <div class="chat-area" id="chatArea">
+                <!-- 欢迎界面 -->
+                <div class="welcome-screen" id="welcomeScreen">
+                    <div class="welcome-content">
+                        <div class="welcome-logo">
+                            <div class="welcome-icon">
+                                <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <circle cx="40" cy="40" r="35" fill="url(#medGrad1)" opacity="0.1"/>
+                                    <!-- 心跳线 -->
+                                    <path d="M8 40 H25 L30 25 L35 55 L40 30 L45 50 L50 35 L55 40 H72" stroke="url(#medGrad2)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                                    <!-- 医疗十字 -->
+                                    <rect x="32" y="8" width="16" height="16" rx="3" fill="url(#medGrad2)" opacity="0.9"/>
+                                    <rect x="36" y="4" width="8" height="24" rx="2" fill="url(#medGrad2)" opacity="0.9"/>
+                                    <rect x="28" y="12" width="24" height="8" rx="2" fill="url(#medGrad2)" opacity="0.9"/>
+                                    <defs>
+                                        <linearGradient id="medGrad1" x1="0" y1="0" x2="80" y2="80">
+                                            <stop offset="0%" style="stop-color:#0ea5e9"/>
+                                            <stop offset="100%" style="stop-color:#14b8a6"/>
+                                        </linearGradient>
+                                        <linearGradient id="medGrad2" x1="8" y1="4" x2="72" y2="72">
+                                            <stop offset="0%" style="stop-color:#0ea5e9"/>
+                                            <stop offset="100%" style="stop-color:#14b8a6"/>
+                                        </linearGradient>
+                                    </defs>
+                                </svg>
+                            </div>
+                            <h1>欢迎使用 MediAgent</h1>
+                            <p>智慧医疗健康助手，为您提供专业的医疗健康咨询服务</p>
+                        </div>
+
+                        <div class="quick-actions">
+                            <div class="quick-action" data-prompt="我最近经常头痛，请问可能是什么原因？">
+                                <div class="quick-icon">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                                        <path d="M3 12h4l2-3 3 6 2-3h4"/>
+                                    </svg>
+                                </div>
+                                <div class="quick-text">
+                                    <div class="quick-title">症状咨询</div>
+                                    <div class="quick-desc">描述您的症状，获取初步健康建议</div>
+                                </div>
+                            </div>
+                            <div class="quick-action" data-prompt="请帮我查询阿莫西林的用法用量和注意事项">
+                                <div class="quick-icon">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <rect x="3" y="3" width="18" height="18" rx="4"/>
+                                        <path d="M12 8v8M8 12h8"/>
+                                        <path d="M7 3v4M17 3v4"/>
+                                    </svg>
+                                </div>
+                                <div class="quick-text">
+                                    <div class="quick-title">药品查询</div>
+                                    <div class="quick-desc">查询药品信息、用法用量和注意事项</div>
+                                </div>
+                            </div>
+                            <div class="quick-action" data-prompt="请介绍一下糖尿病的预防措施和治疗方案">
+                                <div class="quick-icon">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                                        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                                        <path d="M8 7h8M8 11h6"/>
+                                    </svg>
+                                </div>
+                                <div class="quick-text">
+                                    <div class="quick-title">疾病百科</div>
+                                    <div class="quick-desc">了解疾病知识、预防和治疗方案</div>
+                                </div>
+                            </div>
+                            <div class="quick-action" data-prompt="请介绍一下最新的医保报销政策和比例">
+                                <div class="quick-icon">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                                        <path d="M9 12l2 2 4-4"/>
+                                    </svg>
+                                </div>
+                                <div class="quick-text">
+                                    <div class="quick-title">医保政策</div>
+                                    <div class="quick-desc">查询最新医保政策和报销信息</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 消息容器 -->
+                <div class="messages-container" id="messagesContainer">
+                    <!-- 消息会动态添加 -->
+                </div>
+            </div>
+
+            <!-- 输入区域 -->
+            <div class="input-area">
+                <div class="input-wrapper">
+                    <div class="input-tools">
+                        <button class="tool-btn" title="附件">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <textarea
+                        class="message-input"
+                        id="messageInput"
+                        placeholder="请描述您的健康问题... (Shift+Enter 换行)"
+                        rows="1"
+                    ></textarea>
+                    <div class="input-actions">
+                        <button class="send-btn" id="sendBtn" title="发送">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="m22 2-7 20-4-9-9-4 20-7z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div class="input-footer">
+                    <span class="input-hint">MediAgent 仅提供健康咨询参考，不能替代专业医生的诊断和治疗</span>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 加载遮罩 -->
+    <div class="loading-overlay" id="loadingOverlay" style="display: none;">
+        <div class="loading-content">
+            <div class="loading-spinner">
+                <div class="spinner-ring"></div>
+                <div class="spinner-ring"></div>
+                <div class="spinner-ring"></div>
+            </div>
+            <div class="loading-text" id="loadingText">MediAgent 正在分析...</div>
+        </div>
+    </div>
+
+    <script src="/static/js/app.js"></script>
+</body>
+</html>
