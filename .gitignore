@@ -141,6 +141,7 @@ cython_debug/
 data/
 workspace/
 logs/
+.uploads/
 *.db
 chromadb/
 .vscode/
@@ -148,7 +149,11 @@ chromadb/
 *.swp
 *.swo
 *~
-
+# Test files (not part of the main project)
+tests/
+__pycache__/
+*.pyc
+.pytest_cache/
 # OS files
 .DS_Store
 Thumbs.db
